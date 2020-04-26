@@ -1,0 +1,18 @@
+Startingames Informations
+
+=======================================================================
+
+Startingames is open to all suggestions.
+The official distribution of the software is only provided by Startingames.
+The source code is available to all users who wish to consult it or suggest improvements. However, mixing or modification of the software is not allowed.
+Part of the code is not published for software security reasons. This part will be functionally described in the sources. The code can be compiled without this security. 
+The buildable version from source is not compatible with the official version available online.
+Startingames is in no way responsible for any risks of using the software. 
+The obligation of Startingames is an obligation of means. 
+Startingames is committed to put in place all means that may be necessary to secure the software and provide the best possible user experience.
+Startingames does not guarantee the functioning and the data.
+If the objective is not achieved, Startingames cannot be held liable on this basis.
+In order to engage the liability of Startingames, the user will have to demonstrate its lack of diligence in its attempts to perform its obligations.
+
+=======================================================================
+
