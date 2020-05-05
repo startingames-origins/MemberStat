@@ -2,7 +2,7 @@
 
 [![N|Solid](https://cdn.studio-startingames.com/startingames/images/STAR-LOGOTEXT-software.png)](https://www.studio-startingames.com/)
 
-MemberStat is an application distrubuted by Startingames allowing the management/archiving of members & events.
+MemberStat is an application distributed by Startingames allowing the management/archiving of members & events.
 This application is a simple solution for any small- and medium-sized organisations (Business, Non-profit organization...).
 
 # Main Features
