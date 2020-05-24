@@ -43,7 +43,6 @@ window_main::window_main(QWidget *parent) : QMainWindow(parent)
         if(user::can(USER_PERM_MEMBER_CONFIG))
         {
             menuConfig->addAction(tr("Member Type"), this, &window_main::configMemberType);
-            menuConfig->addAction(tr("Member Gender"), this, &window_main::configMemberGender);
         }
     }
 
@@ -62,7 +61,7 @@ window_main::window_main(QWidget *parent) : QMainWindow(parent)
 
 void window_main::about()
 {
-    QMessageBox::about(this, APP_NAME" - "+tr("About"), tr("Member Stat is an application for manager members.")+"\n\nMemberStat is open-source for community improvements but\nStartingames is the only one authorized to distribute the software !\nAll copies are prohibited !");
+    QMessageBox::about(this, APP_NAME" - "+tr("About"), tr("Member Stat is an application for manager members.")+tr("\nVersion")+" "+APP_VERSION+"\n\nMemberStat is open-source for community improvements but\nStartingames is the only one authorized to distribute the software !\nAll copies are prohibited !");
 }
 
 void window_main::logout()
@@ -88,14 +87,6 @@ void window_main::configMemberType()
 {
     if(!user::can(USER_PERM_MEMBER_CONFIG)) { return; }
     window_config_gentype *child = new window_config_gentype("member_type");
-    centralZone->addSubWindow(child);
-    child->show();
-}
-
-void window_main::configMemberGender()
-{
-    if(!user::can(USER_PERM_MEMBER_CONFIG)) { return; }
-    window_config_gentype *child = new window_config_gentype("member_gender");
     centralZone->addSubWindow(child);
     child->show();
 }

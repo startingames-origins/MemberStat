@@ -10,29 +10,29 @@
 
 #include "spoilerwidget.h"
 
-window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_parent, bool _create) : QMainWindow(_parent)
+window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_parent, int _create, uint64_t _createParent) : QMainWindow(_parent)
 {
     memberID=_memberID;
     mainMdi=_mainMdi;
     setWindowTitle(APP_NAME" - "+tr("Member"));
 
     QLabel *label_ID = new QLabel("ID", this);
-    QLabel *label_regNum = new QLabel("Registration Number", this);
-    QLabel *label_gender = new QLabel("Gender", this);
-    QLabel *label_memberType = new QLabel("Member Type", this);
-    QLabel *label_firstName = new QLabel("First Name", this);
-    QLabel *label_otherName = new QLabel("Other Name", this);
-    QLabel *label_lastName = new QLabel("Last Name", this);
-    QLabel *label_birthThe = new QLabel("Birth The", this);
-    QLabel *label_birthAt = new QLabel("At", this);
-    QLabel *label_createdAt = new QLabel("Created At", this);
-    QLabel *label_editedAt = new QLabel("Edited At", this);
+    QLabel *label_regNum = new QLabel(tr("Registration Number"), this);
+    QLabel *label_gender = new QLabel(tr("Gender"), this);
+    QLabel *label_memberType = new QLabel(tr("Member Type"), this);
+    QLabel *label_firstName = new QLabel(tr("First Name"), this);
+    QLabel *label_otherName = new QLabel(tr("Other Name"), this);
+    QLabel *label_lastName = new QLabel(tr("Last Name"), this);
+    QLabel *label_birthThe = new QLabel(tr("Birth The"), this);
+    QLabel *label_birthAt = new QLabel(tr("At"), this);
+    QLabel *label_createdAt = new QLabel(tr("Created At"), this);
+    QLabel *label_editedAt = new QLabel(tr("Edited At"), this);
 
     view_ID = new QLineEdit(this);
         view_ID->setDisabled(true);
     view_regNum = new QLineEdit(this);
         view_regNum->setMaxLength(250);
-    view_gender = new QComboBox(this);
+    view_gender = new member_gender_widget(this);
     view_memberType = new QComboBox(this);
     view_firstName = new QLineEdit(this);
         view_firstName->setMaxLength(250);
@@ -50,10 +50,6 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
         view_createdAt->setDisabled(true);
     view_editedAt = new QDateTimeEdit(this);
         view_editedAt->setDisabled(true);
-    view_comment = new QTextEdit(this);
-
-    //view_gender->setCurrentIndex(0);
-
 
     QHBoxLayout *baseinfoLayout = new QHBoxLayout(this);
         baseinfoLayout->addWidget(label_ID);
@@ -84,14 +80,89 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
         birthinfoLayout->addWidget(label_birthAt);
         birthinfoLayout->addWidget(view_birthLocation);
 
-    view_relations = new QWidget(this);
+
+    QWidget *view_comment = new QWidget(this);
+        view_comment_label = new QLabel(view_comment);
+        view_comment_edit = new QTextEdit(view_comment);
+            connect(view_comment_edit, SIGNAL(textChanged()), this, SLOT(commentEdited()));
+        QGridLayout *view_comment_layout = new QGridLayout(this);
+            view_comment_layout->addWidget(view_comment_label);
+            view_comment_layout->addWidget(view_comment_edit);
+    view_comment->setLayout(view_comment_layout);
+
+    QWidget *view_contacts = new QWidget(this);
+        QLabel *view_contacts_autoSave = new QLabel(tr("Actions in this group are auto-saved !"), view_contacts);
+        QGroupBox *view_contacts_phones = new QGroupBox(tr("Phones"), view_contacts);
+            QStringList phones_module_names;    phones_module_names << tr("Phone") << tr("Comment");
+            QStringList phones_module_namesDB;  phones_module_namesDB << "phone" << "comment";
+            view_contact_phones_module = new module_info_spetable(phones_module_names, phones_module_namesDB, "member_phone", "member", memberID, view_contacts, false);
+            QGridLayout *view_contacts_phones_layout = new QGridLayout(this);
+                view_contacts_phones_layout->setMargin(0);
+                view_contacts_phones_layout->addWidget(view_contact_phones_module);
+            view_contacts_phones->setLayout(view_contacts_phones_layout);
+        QGroupBox *view_contacts_emails = new QGroupBox(tr("E-mails"), view_contacts);
+            QStringList emails_module_names;    emails_module_names << tr("E-mail") << tr("Comment");
+            QStringList emails_module_namesDB;  emails_module_namesDB << "email" << "comment";
+            view_contact_emails_module = new module_info_spetable(emails_module_names, emails_module_namesDB, "member_email", "member", memberID, view_contacts, false);
+            QGridLayout *view_contacts_emails_layout = new QGridLayout(this);
+                view_contacts_emails_layout->setMargin(0);
+                view_contacts_emails_layout->addWidget(view_contact_emails_module);
+            view_contacts_emails->setLayout(view_contacts_emails_layout);
+        QGroupBox *view_contacts_addr = new QGroupBox(tr("Address"), view_contacts);
+            QStringList addr_module_names;    addr_module_names << tr("Street") << tr("Post Code") << tr("City") << tr("Comment");
+            QStringList addr_module_namesDB;  addr_module_namesDB << "street" << "postcode" << "city" << "comment";
+            view_contact_addr_module = new module_info_spetable(addr_module_names, addr_module_namesDB, "member_address", "member", memberID, view_contacts, false);
+            QGridLayout *view_contacts_addr_layout = new QGridLayout(this);
+                view_contacts_addr_layout->setMargin(0);
+                view_contacts_addr_layout->addWidget(view_contact_addr_module);
+            view_contacts_addr->setLayout(view_contacts_addr_layout);
+        QGridLayout *contactsLayout = new QGridLayout(this);
+            contactsLayout->addWidget(view_contacts_autoSave, 0, 0, 1, 2);
+            contactsLayout->addWidget(view_contacts_phones, 1, 0);
+            contactsLayout->addWidget(view_contacts_emails, 1, 1);
+            contactsLayout->addWidget(view_contacts_addr, 2, 0, 1, 2);
+    view_contacts->setLayout(contactsLayout);
+
+    QGroupBox *view_childrens = new QGroupBox(tr("Childrens"), this);
+        QLabel *view_childs_label = new QLabel(tr("This section show the list of childrens. Double-click to open child.\nTo edit this list, please edit parent."), this);
+        view_childs_count = new QLabel(this);
+            view_childs_count->setStyleSheet("font-weight: bold;");
+        QPushButton *view_childs_button_add = new QPushButton(tr("Create a New Member with this as parent"), this);
+            view_childs_button_add->setEnabled(user::can(USER_PERM_MEMBER_ADD));
+            connect(view_childs_button_add, SIGNAL(released()), this, SLOT(addChild()));
+        view_childs_table = new QTableWidget(0, 5, this);
+            view_childs_table->setAlternatingRowColors(true);
+            view_childs_table->setStyleSheet("alternate-background-color: rgb(210,240,250);");
+            //view_childs_table->setColumnHidden(0, true);
+            view_childs_table->verticalHeader()->setHidden(true);
+            view_childs_table->setSelectionMode(QAbstractItemView::SingleSelection);
+            view_childs_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+            view_childs_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            QStringList horizontalHeaders;
+            horizontalHeaders << "id" << tr("Reg Num") << tr("Age") << tr("First Name") << tr("Last Name");
+            view_childs_table->setHorizontalHeaderLabels(horizontalHeaders);
+            view_childs_table->resizeColumnsToContents();
+            view_childs_table->sortByColumn(1, Qt::AscendingOrder);
+            view_childs_table->verticalHeader()->setDefaultSectionSize(40);
+            //connect(table, SIGNAL(itemSelectionChanged()), this, SLOT(versionSelChange()));
+            connect(view_childs_table, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(openMember(QTableWidgetItem*)));
+
+        QGridLayout *childLayout = new QGridLayout(this);
+            childLayout->addWidget(view_childs_label, 0, 0);
+            childLayout->addWidget(view_childs_button_add, 0, 1);
+            childLayout->addWidget(view_childs_count, 1, 0, 1, 2);
+            childLayout->addWidget(view_childs_table, 2, 0, 1, 2);
+    view_childrens->setLayout(childLayout);
+
+
+    QWidget *view_relations = new QWidget(this);
         QLabel *label_relregnum = new QLabel(tr("Reg Num"), this);
         QLabel *label_relfirstName = new QLabel(tr("First Name"), this);
         QLabel *label_relLastName = new QLabel(tr("Last Name"), this);
         QLabel *label_relAge = new QLabel(tr("Age"), this);
         QLabel *label_spouse = new QLabel(tr("Spouse"), this);
-        QLabel *label_father = new QLabel(tr("Father"), this);
-        QLabel *label_mother = new QLabel(tr("Mother"), this);
+        QLabel *label_father = new QLabel(tr("Parent 1"), this);
+        QLabel *label_mother = new QLabel(tr("Parent 2"), this);
         view_spouse_regNum = new QLineEdit(this);
             view_spouse_regNum->setReadOnly(true);
         view_spouse_firstName = new QLineEdit(this);
@@ -134,7 +205,6 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
             connect(button_mother_select, SIGNAL(released()), this, SLOT(motherSelect()));
         button_mother_open = new QPushButton(QIcon(ICON_OPENEXTERN), "", this);
             connect(button_mother_open, SIGNAL(released()), this, SLOT(motherOpen()));
-        QSpacerItem *relation_spacer = new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
         QGridLayout *relationLayout = new QGridLayout(this);
             relationLayout->addWidget(label_relregnum, 0, 1);
             relationLayout->addWidget(label_relfirstName, 0, 2);
@@ -164,35 +234,13 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
             relationLayout->addWidget(button_mother_nobody, 3, 5);
             relationLayout->addWidget(button_mother_select, 3, 6);
             relationLayout->addWidget(button_mother_open, 3, 7);
-            relationLayout->addItem(relation_spacer, 4, 0, 1, 8);
+            relationLayout->addWidget(view_childrens, 4, 0, 1, 8);
     view_relations->setLayout(relationLayout);
 
-    view_childrens = new QWidget(this);
-        view_childs_label = new QLabel(tr("This section show the list of childrens. Double-click to open child.\nTo edit this list, please edit parent."), this);
-        view_childs_table = new QTableWidget(0, 5, this);
-            view_childs_table->setAlternatingRowColors(true);
-            view_childs_table->setStyleSheet("alternate-background-color: rgb(210,240,250);");
-            //view_childs_table->setColumnHidden(0, true);
-            view_childs_table->verticalHeader()->setHidden(true);
-            view_childs_table->setSelectionMode(QAbstractItemView::SingleSelection);
-            view_childs_table->setSelectionBehavior(QAbstractItemView::SelectRows);
-            view_childs_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-            QStringList horizontalHeaders;
-            horizontalHeaders << "id" << tr("Reg Num") << tr("Age") << tr("First Name") << tr("Last Name");
-            view_childs_table->setHorizontalHeaderLabels(horizontalHeaders);
-            view_childs_table->resizeColumnsToContents();
-            view_childs_table->sortByColumn(1, Qt::AscendingOrder);
-            view_childs_table->verticalHeader()->setDefaultSectionSize(40);
-            //connect(table, SIGNAL(itemSelectionChanged()), this, SLOT(versionSelChange()));
-            connect(view_childs_table, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(openMember(QTableWidgetItem*)));
-
-        QGridLayout *childLayout = new QGridLayout(this);
-            childLayout->addWidget(view_childs_label);
-            childLayout->addWidget(view_childs_table);
-    view_childrens->setLayout(childLayout);
-
-    view_events = new QWidget(this);
-        view_events_label = new QLabel(tr("This section show the list of events where the member are. Double-click to open event.\nTo edit this list, please edit Events."), this);
+    QWidget *view_events = new QWidget(this);
+        QLabel *view_events_label = new QLabel(tr("This section show the list of events where the member are. Double-click to open event.\nTo edit this list, please edit Events."), this);
+        view_events_count = new QLabel(this);
+            view_events_count->setStyleSheet("font-weight: bold;");
         view_events_table = new QTableWidget(0, 5, this);
             view_events_table->setAlternatingRowColors(true);
             view_events_table->setStyleSheet("alternate-background-color: rgb(210,240,250);");
@@ -209,40 +257,42 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
             view_events_table->verticalHeader()->setDefaultSectionSize(40);
             //connect(table, SIGNAL(itemSelectionChanged()), this, SLOT(versionSelChange()));
             connect(view_events_table, SIGNAL(itemDoubleClicked(QTableWidgetItem*)), this, SLOT(openEvent(QTableWidgetItem*)));
-
         QGridLayout *eventsLayout = new QGridLayout(this);
             eventsLayout->addWidget(view_events_label);
+            eventsLayout->addWidget(view_events_count);
             eventsLayout->addWidget(view_events_table);
     view_events->setLayout(eventsLayout);
 
     tab_widget = new QTabWidget(this);
-        tab_widget->insertTab(0, view_relations, tr("Relations"));
-        tab_widget->insertTab(1, view_childrens, tr("Childrens"));
-        tab_widget->insertTab(2, view_events, tr("Events"));
+        tab_widget->insertTab(0, view_comment, tr("Comment"));
+        tab_widget->insertTab(1, view_contacts, tr("Contacts"));
+        tab_widget->insertTab(2, view_relations, tr("Relations"));
+        tab_widget->insertTab(3, view_events, tr("Events"));
 
-   QGridLayout *spoilerLayout = new QGridLayout();
-   spoilerLayout->addWidget(tab_widget);
-   spoilerWidget *spoiler = new spoilerWidget(tr("Relations"), 100, this);
-   spoiler->setContentLayout(*spoilerLayout);
+    /*QGridLayout *spoilerLayout = new QGridLayout();
+        spoilerLayout->addWidget(tab_widget);
+        spoilerWidget *spoiler = new spoilerWidget(tr("More"), 100, this);
+        spoiler->setContentLayout(*spoilerLayout);
+
+        connect(spoiler, &spoilerWidget::stateChanged, [this]() {
+            if(subContainer->sizeHint().height()>subContainer->size().height())
+            {
+                subContainer->resize(subContainer->size().width(), subContainer->sizeHint().height()-100);
+            }
+        });*/
 
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
         mainLayout->addLayout(baseinfoLayout);
         mainLayout->addLayout(nameinfoLayout);
         mainLayout->addLayout(birthinfoLayout);
-        mainLayout->addWidget(view_comment);
-        mainLayout->addWidget(spoiler);
+        mainLayout->addWidget(tab_widget);
 
     centralWidget = new QWidget(this);
         centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 
-    connect(spoiler, &spoilerWidget::stateChanged, [this]() {
-        if(subContainer->sizeHint().height()>subContainer->size().height())
-        {
-            subContainer->resize(subContainer->size().width(), subContainer->sizeHint().height()-100);
-        }
-    });
+
 
     QToolBar *toolBar = new QToolBar(this);
         toolBar->addAction(QIcon(ICON_REFRESH), tr("Refresh"), this, &window_member::updateView);
@@ -264,7 +314,7 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
     addToolBar(toolBar);
     lock();
 
-    if(_create)
+    if(_create>-1)
     {
         memberID=0;
         QSqlQuery query;
@@ -293,6 +343,8 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
         {
             engine_db::dispERR(this, query);
         }
+        updateView();
+        if(_create==1 && _createParent!=0) { fatherID=_createParent; editSave(); }
         action_edit->setChecked(true);
         unlock();
     }
@@ -300,12 +352,6 @@ window_member::window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_p
     view_ID->setText(QString::number(memberID));
     updateView();
 }
-
-/*void window_member::resizeEvent(QResizeEvent* event)
-{
-    QMainWindow::resizeEvent(event);
-    QMessageBox::information(nullptr, "", "");
-}*/
 
 void window_member::openMember(QTableWidgetItem *item)
 {
@@ -325,12 +371,6 @@ void window_member::updateView()
 {
     user::updateDB();
 
-    view_gender->clear();
-    for(int i=0; i<user::gender_text.size(); i++)
-    {
-        view_gender->addItem(user::gender_text.at(i), user::gender_id.at(i));
-    }
-
     view_memberType->clear();
     for(int i=0; i<user::type_text.size(); i++)
     {
@@ -345,10 +385,8 @@ void window_member::updateView()
         if(query.next())
         {
             view_regNum->setText(query.record().value("regNum").toString());
-            int temp = user::gender_id.indexOf(query.record().value("gender").toInt());
-            if(temp<1) { temp=0; }
-            view_gender->setCurrentIndex(temp);
-            temp = user::type_id.indexOf(query.record().value("type").toInt());
+            view_gender->setID(query.record().value("gender").toInt());
+            int temp = user::type_id.indexOf(query.record().value("type").toInt());
             if(temp<1) { temp=0; }
             view_memberType->setCurrentIndex(temp);
             view_firstName->setText(query.record().value("firstName").toString());
@@ -358,7 +396,8 @@ void window_member::updateView()
             view_birthLocation->setText(query.record().value("birthLocation").toString());
             view_createdAt->setDateTime(query.record().value("createdAt").toDateTime());
             view_editedAt->setDateTime(query.record().value("updatedAt").toDateTime());
-            view_comment->setText(query.record().value("comment").toString());
+            view_comment_edit->setText(query.record().value("comment").toString());
+            commentEdited();
             updateAge();
 
             spouseID=0;
@@ -427,6 +466,10 @@ void window_member::updateView()
     {
         engine_db::dispERR(this, query);
     }
+
+    view_contact_phones_module->update();
+    view_contact_emails_module->update();
+    view_contact_addr_module->update();
 }
 
 void window_member::updateAge()
@@ -530,17 +573,29 @@ void window_member::updateMother()
 void window_member::updateChilds()
 {
     int count=0;
+    int nbboy = 0;
+    int nbgirl = 0;
     view_childs_table->setSortingEnabled(false);
     view_childs_table->setRowCount(0);
 
     QSqlQuery query;
-    query.prepare("SELECT member2, regNum, firstName, lastName, birthDate FROM members JOIN members_relation ON members.id = members_relation.member2 WHERE member1 = "+QString::number(memberID)+" AND ( members_relation.type = 2 OR members_relation.type = 3 )");
+    query.prepare("SELECT member2, regNum, firstName, lastName, birthDate, gender FROM members JOIN members_relation ON members.id = members_relation.member2 WHERE member1 = "+QString::number(memberID)+" AND ( members_relation.type = 2 OR members_relation.type = 3 )");
     //query.addBindValue(memberID);
     if(query.exec())    //exec query
     {
         while(query.next())    //Get user infos
         {
             view_childs_table->setRowCount(count+1);
+            switch(query.record().value("gender").toInt())
+            {
+            case 1:
+                nbboy++;
+                break;
+            case 2:
+                nbgirl++;
+                break;
+            }
+
             view_childs_table->setItem(count, 0, new QTableWidgetItem(query.record().value("member2").toString()));
             view_childs_table->setItem(count, 1, new QTableWidgetItem(query.record().value("regNum").toString()));
             view_childs_table->setItem(count, 2, new QTableWidgetItem(QString::number(global::age(query.record().value("birthDate").toDate()))));
@@ -553,6 +608,13 @@ void window_member::updateChilds()
     {
         engine_db::dispERR(nullptr, query);
     }
+
+    QString tempText = QString::number(count) + tr(" Child(s) Found");
+    if(count>0)
+    {
+        tempText+=" ("+QString::number(nbboy)+", "+QString::number(nbgirl)+")";
+    }
+    view_childs_count->setText(tempText);
 
     view_childs_table->resizeColumnsToContents();
     view_childs_table->resizeRowsToContents();
@@ -587,6 +649,7 @@ void window_member::updateEvents()
         engine_db::dispERR(nullptr, query);
     }
 
+    view_events_count->setText(QString::number(count) + tr(" Event(s) Found"));
     view_events_table->resizeColumnsToContents();
     view_events_table->resizeRowsToContents();
     view_events_table->sortByColumn(1, Qt::DescendingOrder);
@@ -603,7 +666,7 @@ void window_member::lock()
     view_lastName->setReadOnly(true);
     view_birthDate->setReadOnly(true);
     view_birthLocation->setReadOnly(true);
-    view_comment->setReadOnly(true);
+    view_comment_edit->setReadOnly(true);
 
     button_spouse_nobody->setEnabled(false);
     button_spouse_select->setEnabled(false);
@@ -626,7 +689,7 @@ void window_member::unlock()
     view_lastName->setReadOnly(false);
     view_birthDate->setReadOnly(false);
     view_birthLocation->setReadOnly(false);
-    view_comment->setReadOnly(false);
+    view_comment_edit->setReadOnly(false);
 
     button_spouse_nobody->setEnabled(true);
     button_spouse_select->setEnabled(true);
@@ -663,9 +726,9 @@ void window_member::editSave()
     query.addBindValue(view_lastName->text());
     query.addBindValue(view_birthDate->date());
     query.addBindValue(view_birthLocation->text());
-    query.addBindValue(view_gender->currentData().toInt());
+    query.addBindValue(view_gender->getID());
     query.addBindValue(view_memberType->currentData().toInt());
-    query.addBindValue(view_comment->toPlainText());
+    query.addBindValue(view_comment_edit->toPlainText());
     query.addBindValue(memberID);
     if(!query.exec())
     {
@@ -792,7 +855,7 @@ void window_member::fatherRemove()
 void window_member::fatherSelect()
 {
     bwin_member_select = new QDialog(this, Qt::Tool);
-    bwin_member_select->setWindowTitle(tr("Select Father"));
+    bwin_member_select->setWindowTitle(tr("Select Parent 1"));
     bwin_member_select_module = new module_search_member();
     connect(bwin_member_select_module, SIGNAL(doubleCliked(uint64_t)), this, SLOT(fatherSelectReturn(uint64_t)));
     bwin_member_select_layout = new QGridLayout();
@@ -824,7 +887,7 @@ void window_member::motherRemove()
 void window_member::motherSelect()
 {
     bwin_member_select = new QDialog(this, Qt::Tool);
-    bwin_member_select->setWindowTitle(tr("Select Mother"));
+    bwin_member_select->setWindowTitle(tr("Select Parent 2"));
     bwin_member_select_module = new module_search_member();
     connect(bwin_member_select_module, SIGNAL(doubleCliked(uint64_t)), this, SLOT(motherSelectReturn(uint64_t)));
     bwin_member_select_layout = new QGridLayout();
@@ -845,4 +908,28 @@ void window_member::motherOpen()
     window_member *child = new window_member(motherID, mainMdi, nullptr);
     mainMdi->addSubWindow(child);
     child->show();
+}
+
+void window_member::addChild()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Create a new Member ?"), tr("Are you sure to create a new member ?\nCurent Member will be assigned as parent 1 "), QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        window_member *child = new window_member(0, mainMdi, nullptr, 1, memberID);
+        QMdiSubWindow *sub = mainMdi->addSubWindow(child);
+        child->subContainer = sub;
+        child->show();
+    }
+}
+
+void window_member::commentEdited()
+{
+    QString commentText = view_comment_edit->toPlainText();
+    if(commentText.length()>250)
+    {
+        commentText.resize(250);
+        view_comment_edit->setText(commentText);
+    }
+    view_comment_label->setText(QString::number(commentText.length())+tr(" / 250 Caracters"));
 }

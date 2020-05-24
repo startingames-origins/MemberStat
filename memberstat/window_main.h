@@ -34,7 +34,6 @@ private slots:
     void memberSearch();
     void openEvents();
     void configMemberType();
-    void configMemberGender();
     void configUsers();
     void openRights();
 

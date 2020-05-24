@@ -36,7 +36,7 @@ bool global::init()
         return false;
     }
 
-    return true;
+    return member_gender::init();
 }
 
 int global::age(QDate birthDate)
@@ -54,4 +54,10 @@ int global::age(QDate birthDate)
     }
 
     return age;
+}
+
+QDate global::birthDate(int age, QDate date)
+{
+    date.setDate(date.year()-age, date.month(), date.day());
+    return date;
 }

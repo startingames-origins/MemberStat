@@ -10,8 +10,11 @@ SOURCES += \
     global.cpp \
     main.cpp \
     manager.cpp \
+    member_gender.cpp \
+    module_info_spetable.cpp \
     module_search_event.cpp \
     module_search_member.cpp \
+    module_select_display.cpp \
     spoilerwidget.cpp \
     user.cpp \
     window_config_gentype.cpp \
@@ -32,8 +35,11 @@ HEADERS += \
     global.h \
     main.h \
     manager.h \
+    member_gender.h \
+    module_info_spetable.h \
     module_search_event.h \
     module_search_member.h \
+    module_select_display.h \
     spoilerwidget.h \
     user.h \
     window_config_gentype.h \

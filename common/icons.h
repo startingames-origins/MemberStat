@@ -16,6 +16,7 @@
 #define ICON_REFRESH    "resources/images/icons/sync-solid.svg"
 #define ICON_EDIT       "resources/images/icons/pen-solid.svg"
 #define ICON_SAVE       "resources/images/icons/save-solid.svg"
+#define ICON_OPEN       "resources/images/icons/folder-open-solid.svg"
 
 #define ICON_IMPORT     "resources/images/icons/file-import-solid.svg"
 #define ICON_EXPORT     "resources/images/icons/file-export-solid.svg"

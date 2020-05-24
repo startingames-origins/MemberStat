@@ -1,3 +1,24 @@
+# V 1.1.0
+ADD     Option to displau child count in Member Search
+ADD     Option to display event count in Member Search
+ADD     Member Fields for multiple Phone, E-mail, and Address
+ADD     Save Parameters and reload it for Member Search
+ADD     Edit and Remove comments in Event
+ADD     Columns filers in Members Search
+ADD     Press Enter in Search Field to search
+ADD     Button to Create a new member in Childs view with auto assign.
+ADD     Member view : Display comment length + result count
+ADD     Display APP Version in About Box and in ConfigTool
+UPDATE  Mother and Father renamed Parent 1 and 2
+UPDATE  Move Children relations into Relations Tab
+UPDATE  Text and Language
+UPDATE  Remove Spoiler in Member view and comment moved into Tabs
+CHANGE  Genre fixed and not editable
+BUG     Age filter in Member Search cause error
+BUG     Last Name filter in Member Search is not working
+BUG     Crash when editing relations after creating new member
+BUG     Wrong reading of translation name in ConfigTool
+
 # V 1.0.0
 ADD     Local Mode with SQLite
 ADD     Comment for Members

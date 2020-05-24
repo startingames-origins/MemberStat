@@ -12,8 +12,6 @@ int user::id = 0;
 QString user::name = "";
 int user::rights = 0;
 
-QList<int> user::gender_id;
-QStringList user::gender_text;
 QList<int> user::type_id;
 QStringList user::type_text;
 
@@ -24,25 +22,7 @@ user::user()
 
 void user::updateDB()
 {
-    user::gender_id.clear();
-    user::gender_text.clear();
-    user::gender_id.append(-1);
-    user::gender_text.append("-");
-
     QSqlQuery query;
-    query.prepare("SELECT id, name FROM member_gender ORDER BY priority DESC");
-    if(query.exec())    //exec query
-    {
-        while(query.next())    //Get user infos
-        {
-            user::gender_id.append(query.value(query.record().indexOf("id")).toInt());
-            user::gender_text.append(query.value(query.record().indexOf("name")).toString());
-        }
-    }
-    else
-    {
-        engine_db::dispERR(nullptr, query);
-    }
 
     user::type_id.clear();
     user::type_text.clear();

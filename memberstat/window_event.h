@@ -42,6 +42,12 @@ private slots:
     void openMember(QTableWidgetItem *item);
     void commentUpdate();
     void commentAdd();
+    void evtButtonsTable();
+    void evtNewButton();
+    void evtEditButton();
+    void evtDeleteButton();
+    void commentEdit();
+
 
 private:
     QMdiArea *mainMdi;
@@ -64,9 +70,17 @@ private:
     QTableWidget *group_member_table;
 
     QWidget *view_events_comm;
+
+    QPushButton *view_events_comm_new;
+    QPushButton *view_events_comm_edit;
+    QPushButton *view_events_comm_delete;
+
+    QList<int> view_events_comm_listID;
     QListWidget *view_events_comm_table;
     QTextEdit *view_events_comm_text;
-    QPushButton *view_events_comm_add;
+
+    QPushButton *view_events_comm_confirm_add;
+    QPushButton *view_events_comm_confirm_edit;
 
     QTabWidget *tab_widget;
 

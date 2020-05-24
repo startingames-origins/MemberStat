@@ -20,6 +20,7 @@ HEADERS += \
     ../common/icons.h \
     db_migration/db_migration_0.h \
     db_migration/db_migration_1.h \
+    db_migration/db_migration_2.h \
     db_migration/db_migration_engine.h \
     db_migration/db_migration_generic.h \
     db_migration/db_migration_register.h \

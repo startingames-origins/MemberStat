@@ -74,20 +74,48 @@ window_event::window_event(uint64_t _eventID, QMdiArea *_mainMdi, QWidget *_pare
     group_member->setLayout(group_member_layout);
 
     view_events_comm = new QWidget(this);
+
+    view_events_comm_new = new QPushButton(QIcon(ICON_PLUS), tr("New"), this);
+        view_events_comm_new->setVisible(user::can(USER_PERM_EVENT_COMMENT));
+        connect(view_events_comm_new, SIGNAL(released()), this, SLOT(evtNewButton()));
+
+    view_events_comm_edit = new QPushButton(QIcon(ICON_EDIT), tr("Edit"), this);
+        view_events_comm_edit->setVisible(user::can(USER_PERM_EVENT_COMMENT));
+        connect(view_events_comm_edit, SIGNAL(released()), this, SLOT(evtEditButton()));
+
+    view_events_comm_delete = new QPushButton(QIcon(ICON_TRASH), tr("Delete"), this);
+        view_events_comm_delete->setVisible(user::can(USER_PERM_EVENT_COMMENT));
+        connect(view_events_comm_delete, SIGNAL(released()), this, SLOT(evtDeleteButton()));
+
     view_events_comm_table = new QListWidget(this);
         view_events_comm_table->setAlternatingRowColors(true);
         view_events_comm_table->setStyleSheet("alternate-background-color: rgb(210,240,250);");
+        connect(view_events_comm_table, SIGNAL(itemSelectionChanged()), this, SLOT(evtButtonsTable()));
+
     view_events_comm_text = new QTextEdit(this);
         view_events_comm_text->setVisible(user::can(USER_PERM_EVENT_COMMENT));
         view_events_comm_text->setContextMenuPolicy(Qt::NoContextMenu);
         view_events_comm_text->setStyleSheet("background-color: rgb(250,250,200);");
-    view_events_comm_add = new QPushButton(QIcon(ICON_PLUS), tr("Add this Comment"), this);
-        view_events_comm_add->setVisible(user::can(USER_PERM_EVENT_COMMENT));
-        connect(view_events_comm_add, SIGNAL(released()), this, SLOT(commentAdd()));
+
+    //Add button
+    view_events_comm_confirm_add = new QPushButton(QIcon(ICON_PLUS), tr("Add this Comment"), this);
+        view_events_comm_confirm_add->setVisible(user::can(USER_PERM_EVENT_COMMENT));
+        connect(view_events_comm_confirm_add, SIGNAL(released()), this, SLOT(commentAdd()));
+
+    //Edit button
+    view_events_comm_confirm_edit = new QPushButton(QIcon(ICON_EDIT), tr("Edit this Comment"), this);
+        view_events_comm_confirm_edit->setVisible(user::can(USER_PERM_EVENT_COMMENT));
+        connect(view_events_comm_confirm_edit, SIGNAL(released()), this, SLOT(commentEdit()));
+
+
     QGridLayout *view_events_comm_event = new QGridLayout(this);
-        view_events_comm_event->addWidget(view_events_comm_table);
-        view_events_comm_event->addWidget(view_events_comm_text);
-        view_events_comm_event->addWidget(view_events_comm_add);
+        view_events_comm_event->addWidget(view_events_comm_new, 0, 0);
+        view_events_comm_event->addWidget(view_events_comm_edit, 0, 1);
+        view_events_comm_event->addWidget(view_events_comm_delete, 0, 2);
+        view_events_comm_event->addWidget(view_events_comm_table, 1,0,1,3);
+        view_events_comm_event->addWidget(view_events_comm_text, 2,0,1,3);
+        view_events_comm_event->addWidget(view_events_comm_confirm_add, 3,0,1,3);
+        view_events_comm_event->addWidget(view_events_comm_confirm_edit, 4,0,1,3);
     view_events_comm->setLayout(view_events_comm_event);
 
     tab_widget = new QTabWidget(this);
@@ -183,6 +211,84 @@ window_event::window_event(uint64_t _eventID, QMdiArea *_mainMdi, QWidget *_pare
 
     view_ID->setText(QString::number(eventID));
     updateView();
+}
+
+
+void window_event::evtNewButton()
+{
+    evtButtonsTable();
+    view_events_comm_text->setVisible(true);
+    view_events_comm_confirm_add->setVisible(true);
+
+
+}
+
+void window_event::evtEditButton()
+{
+    evtButtonsTable();
+    view_events_comm_text->setVisible(true);
+    view_events_comm_confirm_edit->setVisible(true);
+
+    QString temp = view_events_comm_table->selectedItems().first()->text();
+    int pause = temp.indexOf('\n');
+    pause = temp.indexOf('\n', pause+1);
+    //TODO: Rappatrie l'information
+    view_events_comm_text->setText(temp.mid(pause + 1));
+
+}
+
+void window_event::evtDeleteButton()
+{
+    if(view_events_comm_table->selectedItems().isEmpty()) { return; }
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("Remove a comment ?"), tr("Are you sure to remove this comment ?"), QMessageBox::Yes|QMessageBox::No);
+
+    if(reply == QMessageBox::Yes)
+    {
+        QSqlQuery query;
+        query.prepare("DELETE FROM events_comments WHERE id = ?");
+        query.addBindValue(view_events_comm_listID.at(view_events_comm_table->row(view_events_comm_table->selectedItems().takeFirst())));
+        if(!query.exec())    //exec query
+        {
+            engine_db::dispERR(nullptr, query);
+        }
+    }
+    commentUpdate();
+}
+
+void window_event::commentEdit()
+{
+    QSqlQuery query;
+    query.prepare("UPDATE events_comments SET comment=?, updatedAt= CURRENT_TIMESTAMP WHERE id = ?");
+    query.addBindValue(view_events_comm_text->toPlainText());
+    query.addBindValue(view_events_comm_listID.at(view_events_comm_table->row(view_events_comm_table->selectedItems().takeFirst())));
+    if(!query.exec())
+    {
+        engine_db::dispERR(this, query);
+    }
+
+    commentUpdate();
+}
+
+void window_event::evtButtonsTable()
+{
+    view_events_comm_text->setText("");
+    view_events_comm_text->setVisible(false);
+    view_events_comm_confirm_add->setVisible(false);
+    view_events_comm_confirm_edit->setVisible(false);
+
+    if(view_events_comm_table->selectedItems().isEmpty())
+    {
+        view_events_comm_edit->setEnabled(false);
+        view_events_comm_delete->setEnabled(false);
+    }
+    else
+    {
+        view_events_comm_edit->setEnabled(true);
+        view_events_comm_delete->setEnabled(true);
+    }
+
 }
 
 void window_event::updateView()
@@ -483,10 +589,11 @@ void window_event::openMember(QTableWidgetItem *item)
 
 void window_event::commentUpdate()
 {
+    view_events_comm_listID.clear();
     view_events_comm_table->clear();
 
     QSqlQuery query;
-    query.prepare("SELECT createdAt, comment, user, username FROM events_comments LEFT JOIN users ON users.id = events_comments.user WHERE event = "+QString::number(eventID)+" ORDER BY createdAt DESC");
+    query.prepare("SELECT events_comments.id, createdAt, comment, user, username FROM events_comments LEFT JOIN users ON users.id = events_comments.user WHERE event = "+QString::number(eventID)+" ORDER BY createdAt DESC");
     //query.addBindValue(eventID);
     if(query.exec())    //exec query
     {
@@ -500,12 +607,15 @@ void window_event::commentUpdate()
             text+="\n\n"+query.record().value("comment").toString();
             item->setText(text);
             view_events_comm_table->addItem(item);
+            view_events_comm_listID.append(query.record().value("id").toInt());
         }
     }
     else
     {
         engine_db::dispERR(nullptr, query);
     }
+
+    evtButtonsTable();
 }
 
 void window_event::commentAdd()

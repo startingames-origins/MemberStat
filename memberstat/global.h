@@ -15,6 +15,7 @@
 #include "../common/engine_settings.h"
 #include "main.h"
 #include <QDesktopServices>
+#include "member_gender.h"
 
 class global : public QObject
 {
@@ -28,6 +29,7 @@ public:
     static bool init();
 
     static int age(QDate birthDate);
+    static QDate birthDate(int age, QDate date = QDate::currentDate());
 
 };
 

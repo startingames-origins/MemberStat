@@ -24,8 +24,12 @@ private slots:
     void openMember(uint64_t memberID);
     void addMember();
 
+    void saveSearch();
+    void loadSearch();
+
 private:
     QMdiArea *mainMdi;
+    module_search_member *moduleSearch;
 };
 
 #endif // WINDOW_SEARCH_MEMBER_H

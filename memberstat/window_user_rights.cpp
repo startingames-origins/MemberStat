@@ -12,7 +12,7 @@ window_user_rights::window_user_rights(uint64_t _userID, QWidget *_parent) : QMa
     cbox_member_add = new QCheckBox(tr("Create a new member"), this);
     cbox_member_edit = new QCheckBox(tr("Edit an existing member"), this);
     cbox_member_remove = new QCheckBox(tr("Remove an existing member"), this);
-    cbox_member_config = new QCheckBox(tr("Configure member type and genre"), this);
+    cbox_member_config = new QCheckBox(tr("Configure member type"), this);
     cbox_event_add = new QCheckBox(tr("Create a new event"), this);
     cbox_event_edit = new QCheckBox(tr("Edit an existing event"), this);
     cbox_event_remove = new QCheckBox(tr("Remove an existing event"), this);
@@ -26,7 +26,7 @@ window_user_rights::window_user_rights(uint64_t _userID, QWidget *_parent) : QMa
         groupMemberLayout->addWidget(cbox_member_config);
     groupMember->setLayout(groupMemberLayout);
 
-    QGroupBox *groupEvent = new QGroupBox(tr("Members"), this);
+    QGroupBox *groupEvent = new QGroupBox(tr("Events"), this);
     QGridLayout *groupEventLayout = new QGridLayout();
         groupEventLayout->addWidget(cbox_event_add);
         groupEventLayout->addWidget(cbox_event_edit);

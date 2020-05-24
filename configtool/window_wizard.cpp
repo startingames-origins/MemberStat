@@ -44,7 +44,7 @@ window_wizard::window_wizard(QWidget *_parent) : QDialog(_parent)
 
     settings = new engine_settings();
 
-    setWindowTitle(APP_NAME);
+    setWindowTitle(APP_NAME  " - v " APP_VERSION);
     setWindowFlag(Qt::WindowMaximizeButtonHint);
     resize(0,0);
 
@@ -480,7 +480,7 @@ void window_wizard::setup_settings1()
             QString temp = fileIt.next();
             if(!temp.isEmpty())
             {
-                temp.remove("ressources/translations/memberstat_");
+                temp.remove("resources/translations/memberstat_");
                 temp.remove(".qm");
                 dataSlug.append(temp);
                 step_settings1.comboBox_language->addItem(temp, temp);

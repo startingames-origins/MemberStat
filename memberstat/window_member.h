@@ -14,13 +14,13 @@
 #include "../common/engine_db.h"
 #include "module_search_member.h"
 #include "window_event.h"
+#include "module_info_spetable.h"
 
 class window_member : public QMainWindow
 {
     Q_OBJECT
 public:
-    window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_parent = nullptr, bool _create = false);
-    //void resizeEvent(QResizeEvent* event);
+    window_member(uint64_t _memberID, QMdiArea *_mainMdi, QWidget *_parent = nullptr, int _create = -1, uint64_t _createParent = 0);
     QMdiSubWindow *subContainer;
 
 signals:
@@ -55,6 +55,9 @@ public slots:
     void openMember(QTableWidgetItem *item);
     void openEvent(QTableWidgetItem *item);
 
+    void addChild();
+    void commentEdited();
+
 private:
     QMdiArea *mainMdi;
     QWidget *centralWidget;
@@ -66,7 +69,7 @@ private:
 
     QLineEdit *view_ID;
     QLineEdit *view_regNum;
-    QComboBox *view_gender;
+    member_gender_widget *view_gender;
     QComboBox *view_memberType;
     QLineEdit *view_firstName;
     QLineEdit *view_otherName;
@@ -76,9 +79,14 @@ private:
     QLineEdit *view_birthLocation;
     QDateTimeEdit *view_createdAt;
     QDateTimeEdit *view_editedAt;
-    QTextEdit *view_comment;
 
-    QWidget *view_relations;
+    QLabel *view_comment_label;
+    QTextEdit *view_comment_edit;
+
+    module_info_spetable *view_contact_phones_module;
+    module_info_spetable *view_contact_emails_module;
+    module_info_spetable *view_contact_addr_module;
+
     QLineEdit *view_spouse_regNum;
     QLineEdit *view_spouse_firstName;
     QLineEdit *view_spouse_lastName;
@@ -101,12 +109,10 @@ private:
     QPushButton *button_mother_select;
     QPushButton *button_mother_open;
 
-    QWidget *view_childrens;
-    QLabel *view_childs_label;
+    QLabel *view_childs_count;
     QTableWidget *view_childs_table;
 
-    QWidget *view_events;
-    QLabel *view_events_label;
+    QLabel *view_events_count;
     QTableWidget *view_events_table;
 
     QTabWidget *tab_widget;
@@ -118,8 +124,6 @@ private:
     QDialog *bwin_member_select;
     module_search_member *bwin_member_select_module;
     QLayout *bwin_member_select_layout;
-
-
 };
 
 #endif // WINDOW_MEMBER_H

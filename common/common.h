@@ -12,7 +12,7 @@
 #define APP_LICENSE         "resources/license.txt"
 #define APP_LICENSE_BRAND   "resources/license-startingames.txt"
 
-#define APP_DB_VERSION  2
+#define APP_DB_VERSION  3
 
 #define USER_PASSWORD_MACRO
 #define USER_PASSWORD_MACRO2    userpass
